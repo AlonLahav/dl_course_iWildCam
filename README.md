@@ -1,8 +1,11 @@
 # dl_course_iWildCam
 Solution For kaggle challange for iWildCam 2019
 
+# Already done:
+- Used <a href="https://github.com/tensorflow/docs/blob/master/site/en/tutorials/images/transfer_learning_with_hub.ipynb">TF example</a>
+
 ## ToDo
-- Download datat
+- Download data
 - Pickup classification model (TF2, ResNet50 is prefered)
 - Used it on our data (inference then train / fine-tune)
 - ... 
