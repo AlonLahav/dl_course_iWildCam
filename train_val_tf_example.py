@@ -6,22 +6,6 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow.keras import layers
 
-IMAGE_SHAPE = (224, 224)
-num_classes = 20
-np.random.seed(0)
-tf.random.set_seed(0)
-
-def config_gpu(use_gpu=True):
-  try:
-    if use_gpu:
-      gpus = tf.config.experimental.list_physical_devices('GPU')
-      for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
-    else:
-      os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-  except:
-    pass
-
 # Define class to collect some training data
 class CollectBatchStats(tf.keras.callbacks.Callback):
   def __init__(self):
@@ -29,52 +13,22 @@ class CollectBatchStats(tf.keras.callbacks.Callback):
     self.batch_acc = []
 
   def on_train_batch_end(self, batch, logs=None):
-    if 'loss' in logs.keys():
-      self.batch_losses.append(logs['loss'])
-      self.batch_acc.append(logs['acc'])
+    self.batch_losses.append(logs['loss'])
+    self.batch_acc.append(logs['acc'])
     self.model.reset_metrics()
 
-config_gpu(True)
 
 # Get the data
 # ------------
-root_path_ds = '/media/alonlahav/4T-b/datasets/iwildcam-2019-fgvc6'
-def process_path(label, file_name, location, n_frames):
-  fn = root_path_ds + '/train_images/' + file_name
-  image = tf.io.read_file(fn)
-  image = tf.image.decode_jpeg(image)
-  image = tf.image.convert_image_dtype(image, tf.float32)
-  image = tf.image.resize(image, IMAGE_SHAPE)
+IMAGE_SHAPE = (224, 224)
+data_root = tf.keras.utils.get_file('flower_photos','https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz', untar=True)
+image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1/255)
+image_data = image_generator.flow_from_directory(str(data_root), target_size=IMAGE_SHAPE)
 
-  if 0:
-    image = tf.cond(tf.math.equal(n_frames, 1), lambda: tf.image.grayscale_to_rgb(image),
-                    lambda: tf.identity(image))
-  if 0:
-    image = tf.cond(tf.math.equal(n_frames, 1), lambda: tf.concat((image, image, image), axis=2),
-                    lambda: tf.identity(image))
-
-
-  return image, label, location
-
-train_csv_file = root_path_ds + '/train.csv'
-record_defaults = [-1, '--', -1, -1]
-dataset = tf.data.experimental.CsvDataset(train_csv_file, record_defaults, select_cols=[0, 2, 5, 8], header=True) # category-id / file name / location
-dataset = dataset.filter(lambda image, label, location, n_frames: n_frames == 3)
-dataset = dataset.map(process_path)
-dataset = dataset.batch(16)
-
-if 0: # Go over the dataset
-  for images, labels, locations in dataset:
-    for image, label, location in zip(images, labels, locations):
-      print(image.shape)
-      assert image.shape[2] == 3
-      continue
-      if location != 33:
-        continue
-      print(image.shape, label.numpy())
-      plt.imshow(image)
-      plt.title(label.numpy())
-      plt.waitforbuttonpress()
+for image_batch, label_batch in image_data:
+  print("Image batch shape: ", image_batch.shape)
+  print("Label batch shape: ", label_batch.shape)
+  break
 
 # Get features extractor and define the model
 # -------------------------------------------
@@ -82,12 +36,12 @@ feature_extractor_url = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/featu
 feature_extractor_layer = hub.KerasLayer(feature_extractor_url,
                                          input_shape=(224,224,3))
 
-#feature_batch = feature_extractor_layer(image_batch)
+feature_batch = feature_extractor_layer(image_batch)
 feature_extractor_layer.trainable = False
 
 model = tf.keras.Sequential([
   feature_extractor_layer,
-  layers.Dense(num_classes)
+  layers.Dense(image_data.num_classes)
 ])
 
 model.summary()
@@ -97,10 +51,13 @@ model.compile(
   loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
   metrics=['acc'])
 
+steps_per_epoch = np.ceil(image_data.samples/image_data.batch_size)
+
 batch_stats_callback = CollectBatchStats()
 
-history = model.fit(dataset, epochs=2,
-                    callbacks = [batch_stats_callback])
+history = model.fit_generator(image_data, epochs=2,
+                              steps_per_epoch=steps_per_epoch,
+                              callbacks = [batch_stats_callback])
 
 plt.figure()
 plt.ylabel("Loss")
