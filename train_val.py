@@ -6,8 +6,14 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow.keras import layers
 
+import dataset_exploration
+
+EXPORT_MODEL = False
+EXPLORE_DATASET = False
+SHOW_IMAGES = False
+
 IMAGE_SHAPE = (224, 224)
-num_classes = 20
+num_classes = 23
 np.random.seed(0)
 tf.random.set_seed(0)
 
@@ -40,11 +46,15 @@ config_gpu(True)
 # ------------
 root_path_ds = '/media/alonlahav/4T-b/datasets/iwildcam-2019-fgvc6'
 def process_path(label, file_name, location, n_frames):
-  fn = root_path_ds + '/train_images/' + file_name
-  image = tf.io.read_file(fn)
-  image = tf.image.decode_jpeg(image)
-  image = tf.image.convert_image_dtype(image, tf.float32)
-  image = tf.image.resize(image, IMAGE_SHAPE)
+  if EXPLORE_DATASET and not SHOW_IMAGES:
+    image = np.zeros(IMAGE_SHAPE)
+  else:
+    fn = root_path_ds + '/train_images/' + file_name
+    image = tf.io.read_file(fn)
+    image = tf.image.decode_jpeg(image)
+    image = tf.image.convert_image_dtype(image, tf.float32)
+    image = tf.image.resize(image, IMAGE_SHAPE)
+  label = tf.one_hot(label, num_classes)
 
   if 0:
     image = tf.cond(tf.math.equal(n_frames, 1), lambda: tf.image.grayscale_to_rgb(image),
@@ -53,24 +63,27 @@ def process_path(label, file_name, location, n_frames):
     image = tf.cond(tf.math.equal(n_frames, 1), lambda: tf.concat((image, image, image), axis=2),
                     lambda: tf.identity(image))
 
-
   return image, label, location
 
 train_csv_file = root_path_ds + '/train.csv'
 record_defaults = [-1, '--', -1, -1]
 dataset = tf.data.experimental.CsvDataset(train_csv_file, record_defaults, select_cols=[0, 2, 5, 8], header=True) # category-id / file name / location
-dataset = dataset.filter(lambda image, label, location, n_frames: n_frames == 3)
+if not EXPLORE_DATASET:
+  #dataset = dataset.filter(lambda image, label, location, n_frames: (n_frames == 3) and (location == 32))
+  dataset = dataset.filter(lambda image, label, location, n_frames: (n_frames == 3))
 dataset = dataset.map(process_path)
-dataset = dataset.batch(16)
+if EXPLORE_DATASET:
+  dataset_exploration.explore_dataset(dataset, num_classes, SHOW_IMAGES)
+dataset = dataset.batch(32)
 
 if 0: # Go over the dataset
   for images, labels, locations in dataset:
     for image, label, location in zip(images, labels, locations):
-      print(image.shape)
+      #print(image.shape)
       assert image.shape[2] == 3
-      continue
-      if location != 33:
-        continue
+      #continue
+      #if location != 33:
+      #  continue
       print(image.shape, label.numpy())
       plt.imshow(image)
       plt.title(label.numpy())
@@ -78,7 +91,7 @@ if 0: # Go over the dataset
 
 # Get features extractor and define the model
 # -------------------------------------------
-feature_extractor_url = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/2"
+feature_extractor_url = 'https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4'
 feature_extractor_layer = hub.KerasLayer(feature_extractor_url,
                                          input_shape=(224,224,3))
 
@@ -105,7 +118,7 @@ history = model.fit(dataset, epochs=2,
 plt.figure()
 plt.ylabel("Loss")
 plt.xlabel("Training Steps")
-plt.ylim([0,2])
+#plt.ylim([0,2])
 plt.plot(batch_stats_callback.batch_losses)
 
 plt.figure()
@@ -118,38 +131,15 @@ plt.show()
 
 # Check prediction
 # ----------------
-class_names = sorted(image_data.class_indices.items(), key=lambda pair:pair[1])
-class_names = np.array([key.title() for key, value in class_names])
-print(class_names)
 
-predicted_batch = model.predict(image_batch)
-predicted_id = np.argmax(predicted_batch, axis=-1)
-predicted_label_batch = class_names[predicted_id]
-
-label_id = np.argmax(label_batch, axis=-1)
-
-plt.figure(figsize=(10,9))
-plt.subplots_adjust(hspace=0.5)
-for n in range(30):
-  plt.subplot(6,5,n+1)
-  plt.imshow(image_batch[n])
-  color = "green" if predicted_id[n] == label_id[n] else "red"
-  plt.title(predicted_label_batch[n].title(), color=color)
-  plt.axis('off')
-_ = plt.suptitle("Model predictions (green: correct, red: incorrect)")
-
-plt.show()
 
 # Export model
 # ------------
-export_path = "/tmp/saved_models/{}".format(int(time.time()))
-model.save(export_path, save_format='tf')
-print(export_path)
+if EXPORT_MODEL:
+  export_path = "/tmp/saved_models/{}".format(int(time.time()))
+  model.save(export_path, save_format='tf')
+  print(export_path)
 
 # Check exported model
-reloaded = tf.keras.models.load_model(export_path)
-result_batch = model.predict(image_batch)
-reloaded_result_batch = reloaded.predict(image_batch)
-print(abs(reloaded_result_batch - result_batch).max())
 
 

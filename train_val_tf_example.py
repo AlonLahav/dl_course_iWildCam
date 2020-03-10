@@ -6,6 +6,17 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow.keras import layers
 
+def config_gpu(use_gpu=True):
+  try:
+    if use_gpu:
+      gpus = tf.config.experimental.list_physical_devices('GPU')
+      for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+    else:
+      os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+  except:
+    pass
+
 # Define class to collect some training data
 class CollectBatchStats(tf.keras.callbacks.Callback):
   def __init__(self):
@@ -17,6 +28,7 @@ class CollectBatchStats(tf.keras.callbacks.Callback):
     self.batch_acc.append(logs['acc'])
     self.model.reset_metrics()
 
+config_gpu(True)
 
 # Get the data
 # ------------
