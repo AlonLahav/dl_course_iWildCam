@@ -31,6 +31,7 @@ classe_names = [i.split(', ')[0] for i in classes]
 SHOW_IMAGES = True
 
 def explore_dataset(dataset, n_classes, show_images):
+  show_dataset(dataset)
   n_locations = 150
   dataset_size = 0
   items_per_class = np.zeros((n_classes,))
@@ -48,10 +49,10 @@ def explore_dataset(dataset, n_classes, show_images):
     items_per_location[location] += 1
     if show_images and not cls_show[l]:
       cls_show[l] = 1
-      plt.subplot(3, 4, cls_show.sum())
+      plt.subplot(2, 2, cls_show.sum())
       plt.title(classe_names[l])
       plt.imshow(im)
-    if show_images and cls_show.sum() >= 12:
+    if show_images and cls_show.sum() >= 3:
       break
 
   print('dataset_size: ', dataset_size)
@@ -70,4 +71,15 @@ def explore_dataset(dataset, n_classes, show_images):
 
   plt.show()
 
-  exit(0)
+
+def show_dataset(dataset):
+  for image, label, location in dataset:
+    # print(image.shape)
+    if image.shape[2] == 3:
+      # continue
+      # if location != 33:
+      #  continue
+      print(image.shape, label.numpy())
+      plt.imshow(image)
+      plt.title(label.numpy())
+      plt.waitforbuttonpress()
