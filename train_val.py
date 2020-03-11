@@ -123,17 +123,6 @@ plt.tight_layout()
 plt.ylabel('True label')
 plt.xlabel('Predicted label')
 
-plt.figure()
-plt.ylabel("Loss")
-plt.xlabel("Training Steps")
-plt.plot(batch_stats_callback.batch_losses)
-
-plt.figure()
-plt.ylabel("Accuracy")
-plt.xlabel("Training Steps")
-plt.ylim([0,1])
-plt.plot(batch_stats_callback.batch_acc)
-
 plt.show()
 
 
