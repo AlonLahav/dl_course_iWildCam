@@ -39,7 +39,7 @@ class CollectBatchStats(tf.keras.callbacks.Callback):
 
 batch_stats_callback = CollectBatchStats()
 
-log_dir = './' + datetime.datetime.now().strftime("%d.%m.%Y..%H.%M")
+log_dir = './logdir_' + datetime.datetime.now().strftime("%d.%m.%Y..%H.%M")
 callbacks = [
   keras.callbacks.TensorBoard(log_dir=log_dir),
   batch_stats_callback,
