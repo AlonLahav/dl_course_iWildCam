@@ -4,26 +4,17 @@ import seaborn as sns
 import numpy as np
 import pylab as plt
 import tensorflow as tf
-import tensorflow_hub as hub
 from tensorflow.keras import layers
 from tensorflow import keras
 
 import dataset_utils
 import params
+import dnn_models
 
 np.random.seed(0)
 tf.random.set_seed(0)
 
-def config_gpu(use_gpu=True):
-  try:
-    if use_gpu:
-      gpus = tf.config.experimental.list_physical_devices('GPU')
-      for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
-    else:
-      os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-  except:
-    pass
+dnn_models.config_gpu()
 
 # Define class to collect some training data
 class CollectBatchStats(tf.keras.callbacks.Callback):
@@ -51,49 +42,27 @@ callbacks = [
 ]
 
 
-config_gpu(True)
-
-
-if params.VERY_SMALL_DATASET:
-  locations = np.arange(10)
-  params.SPLIT_TRAIN_TH = 5
-else:
-  locations = np.arange(139)
-locations = np.random.permutation(locations)
-train_dataset = dataset_utils.get_dataset(locations=locations[:params.SPLIT_TRAIN_TH])
-test_dataset = dataset_utils.get_dataset(locations=locations[params.SPLIT_TRAIN_TH:], train=False)
+train_dataset = dataset_utils.get_dataset(locations=params.train_locations)
+test_dataset = dataset_utils.get_dataset(locations=params.test_locations, train=False)
 
 if params.EXPLORE_DATASET:
   exit(0)
 
 # Get features extractor and define the model
 # -------------------------------------------
-if 1:
-  feature_extractor_url = 'https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4'
-if 0:
-  feature_extractor_url = 'https://tfhub.dev/google/imagenet/resnet_v1_101/feature_vector/4'
-feature_extractor_layer = hub.KerasLayer(feature_extractor_url,
-                                         input_shape=(224,224,3))
-feature_extractor_layer.trainable = False
+
+if params.MODEL2USE == 'SPLIT_2x2':
+  model = dnn_models.get_2x2_model()
+
+if params.MODEL2USE == 'VANILA':
+  model = dnn_models.get_vanila_model()
 
 if 0:
   im, lbl, loc = iter(train_dataset).next()
-  feature_extractor_layer(im[:, :224, :224])
-
-if params.SPLIT[0] != 1:
-  inputs = keras.Input(shape=(params.IMAGE_SHAPE[0] * params.SPLIT[0], params.IMAGE_SHAPE[1] * params.SPLIT[1], 3))
-  x1 = feature_extractor_layer(inputs[:, :params.IMAGE_SHAPE[0],                        :params.IMAGE_SHAPE[1]]                )
-  x2 = feature_extractor_layer(inputs[:, params.IMAGE_SHAPE[0]:params.IMAGE_SHAPE[0]*2, :params.IMAGE_SHAPE[1]]                )
-  x3 = feature_extractor_layer(inputs[:, :params.IMAGE_SHAPE[0],                        params.IMAGE_SHAPE[1]:params.IMAGE_SHAPE[1]*2])
-  x4 = feature_extractor_layer(inputs[:, params.IMAGE_SHAPE[0]:params.IMAGE_SHAPE[0]*2, params.IMAGE_SHAPE[1]:params.IMAGE_SHAPE[1]*2])
-  pooling = (x1 + x2 + x3 + x4) / 4
-  outputs = layers.Dense(params.num_classes)(pooling)
-  model = keras.Model(inputs=inputs, outputs=outputs, name='classification')
-else:
-  model = tf.keras.Sequential([
-    feature_extractor_layer,
-    layers.Dense(num_classes)
-  ])
+  f0 = feature_extractor_layer(im[:, :224, :224])
+  f1 = model(im)
+  loss = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+  l = loss(lbl, f1)
 
 model.summary()
 

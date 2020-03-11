@@ -17,7 +17,7 @@ def process_path_no_augmentation(label, file_name, location, n_frames):
   image = tf.image.resize(image, (params.IMAGE_SHAPE[0] * params.SPLIT[0], params.IMAGE_SHAPE[0] * params.SPLIT[1]))
   label = tf.one_hot(label, params.num_classes)
 
-  return image, label, location
+  return image, label #, location
 
 def process_path(label, file_name, location, n_frames):
   if params.EXPLORE_DATASET and not params.SHOW_IMAGES:
@@ -44,9 +44,9 @@ def process_path(label, file_name, location, n_frames):
   image = tf.image.random_brightness(image, 0.5)
   image = tf.image.random_contrast(image, 0.25, 0.75)
 
-  return image, label, location
+  return image, label # , location
 
-def get_dataset(locations, train=True):
+def get_dataset(locations='all', train=True):
   def _filter_classes(image, label, location, n_frames):
     if label == 1:
       return True

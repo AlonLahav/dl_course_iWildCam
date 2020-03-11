@@ -9,7 +9,6 @@ Solution For kaggle challange for iWildCam 2019
 - Split to train / validate
 
 ## ToDo
-- Loss problem - to check again the labels VS predictions
 - Evaluate on train / validate / test set
 - Submit to Kaggle
 - Split to 4 x 3 slices
