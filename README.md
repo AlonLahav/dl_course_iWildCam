@@ -6,9 +6,14 @@ Solution For kaggle challange for iWildCam 2019
 - Dataset was downloaded and extracted
 - Trained over this dataset
 - Used it on our data (inference then train / fine-tune)
+- Split to train / validate
 
 ## ToDo
-- Split to train / validate
+- Loss problem - to check again the labels VS predictions
+- Evaluate on train / validate / test set
+- Submit to Kaggle
+- Split to 4 x 3 slices
+- Train also the feature extractor
 - Use also grayscale images
 - Check notebooks and pickup some ideas
 
@@ -18,13 +23,22 @@ Download `iwildcam-2019-fgvc6.zip` file (46.6G).
 
 ## Installations
 Using TensorFlow 2.1, and tensorflow_hub.
+Other pakedges:
+- seaborn
+- matplotlib
 
 ## Notes about TensorFlow Hub
 TF hub page: <a href="https://www.tensorflow.org/hub">link</a>.
 
 ## Train
+```
+python train_val.py
+```
 
 ## Test
+```
+python evaluate.py
+```
 
 ## Submit to Kaggle
 

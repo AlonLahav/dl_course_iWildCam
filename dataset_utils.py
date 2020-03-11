@@ -41,6 +41,7 @@ def process_path(label, file_name, location, n_frames):
   # data augmentation
   image = tf.image.random_flip_left_right(image)
   image = tf.image.random_hue(image, 0.5)
+  image = tf.image.random_brightness(image, 0.5)
   image = tf.image.random_contrast(image, 0.25, 0.75)
 
   return image, label, location
