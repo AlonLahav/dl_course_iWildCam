@@ -10,7 +10,7 @@ dnn_models.config_gpu(0)
 run = 'logdir_11.03.2020..07.34'
 model_dir = '/home/alonlahav/git-projects/dl_course_iWildCam/' + run
 
-model = dnn_models.get_2x2_model()
+model = dnn_models.get_model()
 model.load_weights(model_dir + '/model/mymodel_1/variables/variables')
 
 if 0:   # Validate

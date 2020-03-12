@@ -1,8 +1,10 @@
+import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow import keras
 from tensorflow.keras import layers
 
 import params
+import dataset_utils
 
 
 def config_gpu(use_gpu=True):
@@ -20,9 +22,15 @@ def config_gpu(use_gpu=True):
 def get_feature_extractor_layer():
   feature_extractor_layer = hub.KerasLayer(params.feature_extractor_url,
                                            input_shape=(224, 224, 3))
-  feature_extractor_layer.trainable = False
+  feature_extractor_layer.trainable = True
 
   return feature_extractor_layer
+
+def get_feature_extractor_layer_spacial():
+  model = tf.keras.applications.MobileNetV2(include_top=False,
+                                            weights='imagenet')
+
+  return model
 
 
 def get_2x2_model():
@@ -38,10 +46,46 @@ def get_2x2_model():
 
   return model
 
+
 def get_vanila_model():
   feature_extractor_layer = get_feature_extractor_layer()
+
   model = tf.keras.Sequential([
     feature_extractor_layer,
     layers.Dense(params.num_classes)
   ])
   return model
+
+
+def get_spacial_av_pooling_model():
+  feature_extractor_layer = get_feature_extractor_layer_spacial()
+
+  model = tf.keras.Sequential([
+    feature_extractor_layer,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    layers.Dense(params.num_classes)
+  ])
+  return model
+
+
+def get_model():
+  if params.MODEL2USE == 'SPLIT_2x2':
+    model = get_2x2_model()
+  elif params.MODEL2USE == 'VANILA':
+    model = get_vanila_model()
+  elif params.MODEL2USE == 'SPATIAL':
+    model = get_spacial_av_pooling_model()
+  return model
+
+
+def check():
+  test_dataset = dataset_utils.get_dataset(locations=params.test_locations, train=False)
+
+  model = get_spacial_av_pooling_model()
+
+  for im, lbl in test_dataset:
+    p = model(im)
+
+
+if __name__ == '__main__':
+  check()

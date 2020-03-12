@@ -2,21 +2,21 @@ import numpy as np
 
 np.random.seed(0)
 
-MODEL2USE = 'SPLIT_2x2' # SPLIT_2x2 / VANILA
+MODEL2USE = 'SPATIAL' # SPLIT_2x2 / VANILA / SPATIAL
 feature_extractor_url = 'https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4'
 #feature_extractor_url = 'https://tfhub.dev/google/imagenet/resnet_v1_101/feature_vector/4'
 
 EXPLORE_DATASET = 0
 SHOW_IMAGES = 0
-IMAGE_SHAPE = (224, 224)
-BATCH_SIZE = 32
+IMAGE_SHAPE = (512, 1024)
+IMAGE_SHAPE = (256, 512)
+BATCH_SIZE = 4
 SMALL_DATASET = 0
 VERY_SMALL_DATASET = 0
 
 N_EPOCHS = 500
 SPLIT_TRAIN_TH = 100
 
-IMAGE_SHAPE = (224, 224)
 SPLIT = (2, 2)
 
 num_classes = 23

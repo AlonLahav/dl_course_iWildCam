@@ -14,7 +14,8 @@ def process_path_no_augmentation(label, file_name, location, n_frames):
   image = tf.io.read_file(fn)
   image = tf.image.decode_jpeg(image)
   image = tf.image.convert_image_dtype(image, tf.float32)
-  image = tf.image.resize(image, (params.IMAGE_SHAPE[0] * params.SPLIT[0], params.IMAGE_SHAPE[0] * params.SPLIT[1]))
+  if params.IMAGE_SHAPE[0] != -1:
+    image = tf.image.resize(image, (params.IMAGE_SHAPE[0] * params.SPLIT[0], params.IMAGE_SHAPE[0] * params.SPLIT[1]))
   label = tf.one_hot(label, params.num_classes)
 
   return image, label #, location
@@ -27,7 +28,7 @@ def process_path(label, file_name, location, n_frames):
     image = tf.io.read_file(fn)
     image = tf.image.decode_jpeg(image)
     image = tf.image.convert_image_dtype(image, tf.float32)
-    if not params.EXPLORE_DATASET:
+    if params.IMAGE_SHAPE[0] != -1 and not params.EXPLORE_DATASET:
       image = tf.image.resize(image, (params.IMAGE_SHAPE[0] * params.SPLIT[0], params.IMAGE_SHAPE[0] * params.SPLIT[1]))
   label = tf.one_hot(label, params.num_classes)
 

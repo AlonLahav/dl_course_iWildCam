@@ -11,9 +11,9 @@ Solution For kaggle challange for iWildCam 2019
 ## ToDo
 - Evaluate on train / validate / test set
 - Submit to Kaggle
+- Check that all works
+- Fix train data for tensorboard
 - Split to 4 x 3 slices
-- Train also the feature extractor
-- Use also grayscale images
 - Check notebooks and pickup some ideas
 
 ## Data

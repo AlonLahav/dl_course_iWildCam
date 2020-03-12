@@ -50,16 +50,10 @@ if params.EXPLORE_DATASET:
 
 # Get features extractor and define the model
 # -------------------------------------------
-
-if params.MODEL2USE == 'SPLIT_2x2':
-  model = dnn_models.get_2x2_model()
-
-if params.MODEL2USE == 'VANILA':
-  model = dnn_models.get_vanila_model()
+model = dnn_models.get_model()
 
 if 0:
-  im, lbl, loc = iter(train_dataset).next()
-  f0 = feature_extractor_layer(im[:, :224, :224])
+  im, lbl = iter(train_dataset).next()
   f1 = model(im)
   loss = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
   l = loss(lbl, f1)
