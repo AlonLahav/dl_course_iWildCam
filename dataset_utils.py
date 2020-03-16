@@ -48,7 +48,8 @@ def get_dataset_kaggle_test():
   record_defaults = ['jpg', 'uuid']
   select_cols = [1, 3] # file=name = 1, uuid = 3
   dataset = tf.data.experimental.CsvDataset(test_csv_file, record_defaults, select_cols=select_cols, header=True) # category-id / file name / location
-  dataset = dataset.shuffle(buffer_size=1000)
+  #dataset = dataset.shuffle(buffer_size=1000)
+  #dataset = dataset.skip(80000)
   dataset = dataset.map(process_path_test)
   dataset = dataset.batch(params.BATCH_SIZE)
   return dataset, 153730

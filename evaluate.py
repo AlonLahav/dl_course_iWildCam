@@ -14,7 +14,7 @@ from dataset_exploration import classe_names
 np.random.seed(0)
 tf.random.set_seed(10)
 
-SHOW = 1
+SHOW = 0
 
 if 0: # Dump dummy CSV result file
   root_path_ds = '/media/alonlahav/4T-b/datasets/iwildcam-2019-fgvc6'
@@ -67,10 +67,10 @@ for im, lb in tqdm(dataset, desc=csv_name, total=max_items2u / params.BATCH_SIZE
   categories = np.argmax(pred, axis=1)
   if SHOW:
     for gt_, im_, pr in zip(lb, im.numpy(), categories):
-      if pr == 0:
-        continue
       gt = np.argmax(gt_.numpy())
       print(classe_names[gt], classe_names[pr])
+      if pr == 0:
+        continue
       plt.imshow(im_)#[:, :, ::-1])
       plt.title((gt, pr))
       while not plt.waitforbuttonpress():
