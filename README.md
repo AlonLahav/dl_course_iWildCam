@@ -7,13 +7,13 @@ Solution For kaggle challange for iWildCam 2019
 - Trained over this dataset
 - Used it on our data (inference then train / fine-tune)
 - Split to train / validate
+- Used spacial feature extraction
+- Evaluate on train / validate / test set
+- Submission with dummy file, just to check the format
 
 ## ToDo
-- Evaluate on train / validate / test set
-- Submit to Kaggle
-- Check that all works
-- Fix train data for tensorboard
-- Split to 4 x 3 slices
+- Submit to Kaggl
+- Check that all works, including dataset exploration
 - Check notebooks and pickup some ideas
 
 ## Data
@@ -35,9 +35,15 @@ python train_val.py
 ```
 
 ## Test
+Change the `run` variable to the current run folder.
+
+Set dataset to the desired one. 
+
+The results (CSV file, for submition) should be at the run folder.
 ```
 python evaluate.py
 ```
 
-## Submit to Kaggle
 
+## Submit to Kaggle
+Go to submission page at Kaggle and drop the CSV file.

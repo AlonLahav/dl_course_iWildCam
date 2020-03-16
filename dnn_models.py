@@ -79,7 +79,7 @@ def get_model():
 
 
 def check():
-  test_dataset = dataset_utils.get_dataset(locations=params.test_locations, train=False)
+  test_dataset, db_size = dataset_utils.get_dataset(locations=params.test_locations, train=False)
 
   model = get_spacial_av_pooling_model()
 

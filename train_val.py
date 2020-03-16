@@ -30,27 +30,27 @@ class CollectBatchStats(tf.keras.callbacks.Callback):
 
 batch_stats_callback = CollectBatchStats()
 
-log_dir = './logdir_' + datetime.datetime.now().strftime("%d.%m.%Y..%H.%M")
+log_dir = './logdir__random_split' + datetime.datetime.now().strftime("%d.%m.%Y..%H.%M")
 callbacks = [
   keras.callbacks.TensorBoard(log_dir=log_dir),
   batch_stats_callback,
   keras.callbacks.ModelCheckpoint(
       filepath=log_dir + '/model/mymodel_{epoch}',
-      save_best_only=True,
+      save_best_only=False,
       monitor='val_loss',
       verbose=1)
 ]
 
 
-train_dataset = dataset_utils.get_dataset(locations=params.train_locations)
-test_dataset = dataset_utils.get_dataset(locations=params.test_locations, train=False)
-
-if params.EXPLORE_DATASET:
-  exit(0)
+train_dataset, trn_size = dataset_utils.get_dataset(train=True)
+test_dataset, tst_size = dataset_utils.get_dataset(train=False)
+print('Train size:', trn_size)
+print('Validation size:', tst_size)
 
 # Get features extractor and define the model
 # -------------------------------------------
 model = dnn_models.get_model()
+tf.keras.utils.plot_model(model, to_file='model.png')
 
 if 0:
   im, lbl = iter(train_dataset).next()

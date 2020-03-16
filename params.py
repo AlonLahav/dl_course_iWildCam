@@ -9,15 +9,12 @@ feature_extractor_url = 'https://tfhub.dev/google/tf2-preview/mobilenet_v2/featu
 EXPLORE_DATASET = 0
 SHOW_IMAGES = 0
 IMAGE_SHAPE = (512, 1024)
-IMAGE_SHAPE = (256, 512)
 BATCH_SIZE = 4
 SMALL_DATASET = 0
 VERY_SMALL_DATASET = 0
 
 N_EPOCHS = 500
 SPLIT_TRAIN_TH = 100
-
-SPLIT = (2, 2)
 
 num_classes = 23
 

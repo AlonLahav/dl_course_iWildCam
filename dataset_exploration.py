@@ -2,6 +2,9 @@
 import pylab as plt
 import numpy as np
 
+import dataset_utils
+import params
+
 classes = """empty, 0
 deer, 1
 moose, 2
@@ -73,13 +76,29 @@ def explore_dataset(dataset, n_classes, show_images):
 
 
 def show_dataset(dataset):
-  for image, label, location in dataset:
+  for images, labels in dataset:
+    image = images[0]
+    label = labels[0]
     # print(image.shape)
     if image.shape[2] == 3:
       # continue
       # if location != 33:
       #  continue
-      print(image.shape, label.numpy())
       plt.imshow(image)
       plt.title(label.numpy())
-      plt.waitforbuttonpress()
+      while not plt.waitforbuttonpress():
+        pass
+
+if __name__ == '__main__':
+  params.BATCH_SIZE = 1
+  if 0:  # Validate
+    dataset, _ = dataset_utils.get_dataset(locations=params.test_locations, train=True)
+    csv_name = 'val'
+  elif 1:  # Train
+    dataset, _ = dataset_utils.get_dataset(locations=params.train_locations, train=False)
+    csv_name = 'train'
+  else:  # Test, 153730 rows. This file should have a header row. CSV: integer-index , UUID, integer-result
+    dataset, _ = dataset_utils.get_dataset_kaggle_test()
+    csv_name = 'test'
+
+  show_dataset(dataset)
