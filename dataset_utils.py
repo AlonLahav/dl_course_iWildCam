@@ -5,8 +5,6 @@ import dataset_exploration
 import params
 
 
-# Get the data
-# ------------
 root_path_ds = '/media/alonlahav/4T-b/datasets/iwildcam-2019-fgvc6'
 train_csv_file = root_path_ds + '/train.csv'
 test_csv_file = root_path_ds + '/test.csv'
@@ -42,7 +40,7 @@ def process_path(label, file_name, location, n_frames):
   #image = tf.image.random_brightness(image, 0.1)
   #image = tf.image.random_contrast(image, 0.85, 1.15)
 
-  return image, label # , location
+  return image, label
 
 def get_dataset_kaggle_test():
   record_defaults = ['jpg', 'uuid']

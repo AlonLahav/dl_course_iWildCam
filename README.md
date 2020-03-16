@@ -10,11 +10,9 @@ Solution For kaggle challange for iWildCam 2019
 - Used spacial feature extraction
 - Evaluate on train / validate / test set
 - Submission with dummy file, just to check the format
+- Submit to Kaggl
 
 ## ToDo
-- Submit to Kaggl
-- Check that all works, including dataset exploration
-- Check notebooks and pickup some ideas
 
 ## Data
 Go to <a href="https://www.kaggle.com/c/iwildcam-2019-fgvc6/data">Kaggle page</a>.

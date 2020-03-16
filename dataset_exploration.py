@@ -31,8 +31,6 @@ mountain_lion, 22""".split('\n')
 
 classe_names = [i.split(', ')[0] for i in classes]
 
-SHOW_IMAGES = True
-
 def explore_dataset(dataset, n_classes, show_images):
   show_dataset(dataset)
   n_locations = 150
@@ -92,13 +90,10 @@ def show_dataset(dataset):
 if __name__ == '__main__':
   params.BATCH_SIZE = 1
   if 0:  # Validate
-    dataset, _ = dataset_utils.get_dataset(locations=params.test_locations, train=True)
-    csv_name = 'val'
+    dataset, _ = dataset_utils.get_dataset(train=False)
   elif 1:  # Train
-    dataset, _ = dataset_utils.get_dataset(locations=params.train_locations, train=False)
-    csv_name = 'train'
+    dataset, _ = dataset_utils.get_dataset(train=True)
   else:  # Test, 153730 rows. This file should have a header row. CSV: integer-index , UUID, integer-result
     dataset, _ = dataset_utils.get_dataset_kaggle_test()
-    csv_name = 'test'
 
   show_dataset(dataset)

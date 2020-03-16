@@ -41,18 +41,19 @@ callbacks = [
       verbose=1)
 ]
 
-
+# Datasets definition
+# -------------------
 train_dataset, trn_size = dataset_utils.get_dataset(train=True)
 test_dataset, tst_size = dataset_utils.get_dataset(train=False)
 print('Train size:', trn_size)
 print('Validation size:', tst_size)
 
-# Get features extractor and define the model
-# -------------------------------------------
+# Get , show and prepare the model
+# --------------------------------
 model = dnn_models.get_model()
 tf.keras.utils.plot_model(model, to_file='model.png')
 
-if 0:
+if 0: # Some tests
   im, lbl = iter(train_dataset).next()
   f1 = model(im)
   loss = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
@@ -65,28 +66,13 @@ model.compile(
   loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
   metrics=['acc'])
 
+# Training
+# --------
 tb = time.time()
 history = model.fit(train_dataset, epochs=params.N_EPOCHS,
                     callbacks=callbacks,
                     validation_data=test_dataset)
 print('Training time:', time.time() - tb)
-
-all_confusion = np.zeros((params.num_classes, params.num_classes), dtype=np.int)
-for im, label, location in test_dataset:
-  y_pred = tf.argmax(model.predict(im), axis=1)
-  l = tf.argmax(label, axis=1)
-  con_mat = tf.math.confusion_matrix(labels=l, predictions=y_pred, num_classes=params.num_classes).numpy()
-  all_confusion += con_mat
-all_confusion = all_confusion / all_confusion.sum(axis=1)[:, np.newaxis]
-print(all_confusion)
-
-figure = plt.figure()
-sns.heatmap(all_confusion, annot=True,cmap=plt.cm.Blues)
-plt.tight_layout()
-plt.ylabel('True label')
-plt.xlabel('Predicted label')
-
-plt.show()
 
 
 

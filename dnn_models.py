@@ -26,6 +26,7 @@ def get_feature_extractor_layer():
 
   return feature_extractor_layer
 
+
 def get_feature_extractor_layer_spacial():
   model = tf.keras.applications.MobileNetV2(include_top=False,
                                             weights='imagenet')
